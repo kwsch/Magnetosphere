@@ -46,6 +46,8 @@ namespace Magnetosphere
         {
             var count = Client.Available;
             data = new byte[count];
+            if (count == 0)
+                throw new Exception("Server has not yet responded!");
             var recv = Client.Receive(data);
             Debug.WriteLine($"Received {recv} bytes to {Summary}.");
             return true;

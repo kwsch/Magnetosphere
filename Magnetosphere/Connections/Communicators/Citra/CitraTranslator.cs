@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace Magnetosphere
 {
@@ -73,6 +74,9 @@ namespace Magnetosphere
                 BitConverter.GetBytes(address).CopyTo(readRPak, CitraPacketHeader.SIZE + 0);
                 BitConverter.GetBytes(readSize).CopyTo(readRPak, CitraPacketHeader.SIZE + 4);
                 Messenger.SendData(readRPak);
+
+                while (!Messenger.Connection.HasPacketReady)
+                    Thread.Sleep(10);
 
                 Messenger.ReceiveData(out var response);
                 var data = ReadAndValidateHeader(response, readHdr.PacketID, readHdr.Type);
