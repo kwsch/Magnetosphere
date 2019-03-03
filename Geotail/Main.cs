@@ -167,11 +167,55 @@ namespace Geotail
                 remoteControl.ShowDialog();
         }
 
-        private void Main_FormClosing(object sender, FormClosingEventArgs e)
+        private void Main_FormClosing(object sender, FormClosingEventArgs e) => SaveBotsToPath(ConfigPath);
+
+        private void SaveBotsToPath(string path)
         {
             var bots = Manager.BotConfigs.ToArray();
             var str = JsonConvert.SerializeObject(bots);
-            File.WriteAllText(ConfigPath, str);
+            File.WriteAllText(path, str);
+        }
+
+        private void Menu_Open_Click(object sender, EventArgs e)
+        {
+            var ofd = new OpenFileDialog();
+            if (ofd.ShowDialog() != DialogResult.OK)
+                return;
+
+            var path = ofd.FileName;
+            ofd.Dispose();
+            try
+            {
+                var lines = File.ReadAllText(path);
+                if (string.IsNullOrWhiteSpace(lines))
+                {
+                    WinFormsUtil.Error("No bots present in config file.");
+                    return;
+                }
+
+                var bots = JsonConvert.DeserializeObject<BotConfig[]>(lines);
+                if (bots.Length == 0)
+                {
+                    WinFormsUtil.Error("No bots present in config file.");
+                    return;
+                }
+
+                LoadConfig(bots);
+                System.Media.SystemSounds.Asterisk.Play();
+            }
+            catch (Exception ex)
+            {
+                WinFormsUtil.Error(ex.Message);
+            }
+        }
+
+        private void Menu_Save_Click(object sender, EventArgs e)
+        {
+            var sfd = new SaveFileDialog();
+            if (sfd.ShowDialog() != DialogResult.OK)
+                return;
+            SaveBotsToPath(sfd.FileName);
+            sfd.Dispose();
         }
     }
 }

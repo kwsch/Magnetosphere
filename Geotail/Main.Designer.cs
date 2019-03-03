@@ -44,12 +44,12 @@
             this.CB_Default = new System.Windows.Forms.ComboBox();
             this.L_Template = new System.Windows.Forms.Label();
             this.PG_Default = new System.Windows.Forms.PropertyGrid();
-            this.LB_Bots = new Geotail.ListBoxEx();
             this.CS_BotMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.TI_Connect = new System.Windows.Forms.ToolStripMenuItem();
             this.TI_Disconnect = new System.Windows.Forms.ToolStripMenuItem();
             this.TI_Remove = new System.Windows.Forms.ToolStripMenuItem();
             this.TI_Test = new System.Windows.Forms.ToolStripMenuItem();
+            this.LB_Bots = new Geotail.ListBoxEx();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -87,14 +87,16 @@
             // openConfigToolStripMenuItem
             // 
             this.openConfigToolStripMenuItem.Name = "openConfigToolStripMenuItem";
-            this.openConfigToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.openConfigToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openConfigToolStripMenuItem.Text = "Open Config";
+            this.openConfigToolStripMenuItem.Click += new System.EventHandler(this.Menu_Open_Click);
             // 
             // saveConfigToolStripMenuItem
             // 
             this.saveConfigToolStripMenuItem.Name = "saveConfigToolStripMenuItem";
-            this.saveConfigToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.saveConfigToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveConfigToolStripMenuItem.Text = "Save Config";
+            this.saveConfigToolStripMenuItem.Click += new System.EventHandler(this.Menu_Save_Click);
             // 
             // OptionsToolStripMenuItem
             // 
@@ -214,20 +216,6 @@
             this.PG_Default.TabIndex = 1;
             this.PG_Default.ToolbarVisible = false;
             // 
-            // LB_Bots
-            // 
-            this.LB_Bots.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.LB_Bots.ContextMenuStrip = this.CS_BotMenu;
-            this.LB_Bots.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.LB_Bots.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.LB_Bots.FormattingEnabled = true;
-            this.LB_Bots.ItemHeight = 70;
-            this.LB_Bots.Location = new System.Drawing.Point(0, 0);
-            this.LB_Bots.Name = "LB_Bots";
-            this.LB_Bots.Size = new System.Drawing.Size(362, 237);
-            this.LB_Bots.TabIndex = 0;
-            this.LB_Bots.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LB_Bots_MouseDown);
-            // 
             // CS_BotMenu
             // 
             this.CS_BotMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -266,6 +254,20 @@
             this.TI_Test.Size = new System.Drawing.Size(133, 22);
             this.TI_Test.Text = "Test";
             this.TI_Test.Click += new System.EventHandler(this.TI_Test_Click);
+            // 
+            // LB_Bots
+            // 
+            this.LB_Bots.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.LB_Bots.ContextMenuStrip = this.CS_BotMenu;
+            this.LB_Bots.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.LB_Bots.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.LB_Bots.FormattingEnabled = true;
+            this.LB_Bots.ItemHeight = 70;
+            this.LB_Bots.Location = new System.Drawing.Point(0, 0);
+            this.LB_Bots.Name = "LB_Bots";
+            this.LB_Bots.Size = new System.Drawing.Size(362, 237);
+            this.LB_Bots.TabIndex = 0;
+            this.LB_Bots.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LB_Bots_MouseDown);
             // 
             // Main
             // 
