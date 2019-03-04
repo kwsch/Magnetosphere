@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Magnetosphere
 {
@@ -89,5 +90,55 @@ namespace Magnetosphere
         }
 
         public static void WriteByte(this IDeviceRW device, byte value, ulong offset) => device.Write(new []{value}, offset);
+
+        // Scan
+        public static IEnumerable<ulong> FindSequences(this IDeviceRW device, byte[] seq, ulong offset, ulong length, uint maxScan = 0x10000, long pid = -1)
+        {
+            var end = offset + length;
+            var hop = maxScan - (uint) seq.Length + 1; // for each check, include enough from last sequence for overlap
+            for (var i = offset; i < end; i+= hop)
+            {
+                var data = device.Read(i, maxScan, pid);
+                var index = IndexOfBytes(data, seq);
+                if (index < 0)
+                    continue;
+
+                yield return i + (ulong)index;
+            }
+        }
+
+        public static long FindSequenceFirst(this IDeviceRW device, byte[] seq, ulong offset, ulong length, uint scanSize = 0x10000, long pid = -1)
+        {
+            var end = offset + length;
+            var hop = scanSize - (uint)seq.Length + 1; // for each check, include enough from last sequence for overlap
+            for (var i = offset; i < end; i += hop)
+            {
+                var data = device.Read(i, scanSize, pid);
+                var index = IndexOfBytes(data, seq);
+                if (index >= 0)
+                    return (long)i + index;
+            }
+            return -1;
+        }
+
+        // Find Code off of Reference
+        private static int IndexOfBytes(byte[] array, byte[] pattern)
+        {
+            int len = pattern.Length;
+            int endIndex = array.Length;
+            int i = 0;
+            int j = 0;
+            while (true)
+            {
+                if (pattern[j] != array[i + j])
+                {
+                    if (++i == endIndex)
+                        return -1;
+                    j = 0;
+                }
+                else if (++j == len)
+                    return i;
+            }
+        }
     }
 }
