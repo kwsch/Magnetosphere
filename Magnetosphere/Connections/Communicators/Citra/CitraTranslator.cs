@@ -59,6 +59,8 @@ namespace Magnetosphere
             return data;
         }
 
+        private readonly object transmission = new object();
+
         public byte[] ReadMemory(uint address, uint size)
         {
             var result = new byte[(int)size];
@@ -73,18 +75,24 @@ namespace Magnetosphere
                 readHdr.ToBytesClass().CopyTo(readRPak, 0);
                 BitConverter.GetBytes(address).CopyTo(readRPak, CitraPacketHeader.SIZE + 0);
                 BitConverter.GetBytes(readSize).CopyTo(readRPak, CitraPacketHeader.SIZE + 4);
-                Messenger.SendData(readRPak);
 
-                while (!Messenger.Connection.HasPacketReady)
-                    Thread.Sleep(10);
+                byte[] response;
+                lock (transmission)
+                {
+                    Messenger.SendData(readRPak);
+                    while (!Messenger.Connection.HasPacketReady)
+                        Thread.Sleep(Messenger.Connection.ReadLoopInterval);
+                    Messenger.ReceiveData(out response);
+                }
 
-                Messenger.ReceiveData(out var response);
                 var data = ReadAndValidateHeader(response, readHdr.PacketID, readHdr.Type);
-                if (data?.Length == 0)
+                if (data.Length == 0)
                     continue;
                 data.CopyTo(result, size - ctr);
-                ctr -= (uint)data.Length;
-                address += (uint)data.Length;
+
+                var read = (uint)data.Length;
+                ctr -= read;
+                address += read;
             }
 
             return result;
@@ -92,10 +100,10 @@ namespace Magnetosphere
 
         public void WriteMemory(byte[] data, uint address)
         {
-            var ctr = data.Length;
+            var ctr = (uint)data.Length;
             while (ctr > 0)
             {
-                uint writesize = Math.Min((uint)ctr, MAX_PACKET_SIZE - 8);
+                var writesize = Math.Min(ctr, MAX_PACKET_SIZE - 8);
 
                 var hdr = GenerateHeader(CitraCommand.WriteMemory, writesize + 8);
                 var wData = new byte[CitraPacketHeader.SIZE + writesize + 8];
@@ -103,14 +111,21 @@ namespace Magnetosphere
                 BitConverter.GetBytes(address).CopyTo(wData, CitraPacketHeader.SIZE + 0);
                 BitConverter.GetBytes(writesize).CopyTo(wData, CitraPacketHeader.SIZE + 4);
                 Array.Copy(data, ctr - writesize, wData, CitraPacketHeader.SIZE + 8, writesize);
-                Messenger.SendData(wData);
 
-                Messenger.ReceiveData(out var response);
+                byte[] response;
+                lock (transmission)
+                {
+                    Messenger.SendData(wData);
+                    while (!Messenger.Connection.HasPacketReady)
+                        Thread.Sleep(Messenger.Connection.ReadLoopInterval);
+                    Messenger.ReceiveData(out response);
+                }
+
                 var rdata = ReadAndValidateHeader(response, hdr.PacketID, hdr.Type);
-                if (rdata?.Length != 0)
+                if (rdata.Length != 0)
                     continue;
-                ctr -= (int)writesize;
-                address += (uint)writesize;
+                ctr -= writesize;
+                address += writesize;
             }
         }
     }
