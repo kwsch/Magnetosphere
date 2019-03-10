@@ -121,11 +121,10 @@ namespace Magnetosphere
             return -1;
         }
 
-        // Find Code off of Reference
         private static int IndexOfBytes(byte[] array, byte[] pattern)
         {
             int len = pattern.Length;
-            int endIndex = array.Length;
+            int endIndex = array.Length - pattern.Length;
             int i = 0;
             int j = 0;
             while (true)
